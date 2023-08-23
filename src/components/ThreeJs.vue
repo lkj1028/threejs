@@ -8,7 +8,6 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 export default {
-  // 借助EdgesGeometry可以给模型设置一个模型边界线
   data() {
     return {
       scene: null, // 场景
@@ -40,15 +39,15 @@ export default {
     init() {
       //第一步：创建场景、相机、渲染器
       this.scene = new THREE.Scene();
-      
-      this.initCamera(); //渲染相机
-      this.initRender(); //渲染器
-      this.loadGLTF(); //渲染模型
-      this.initBackground() // 设置背景
-      
-
+      this.initCameraBase() //渲染基础3d模型相机
       //第二步：创建要显示的立方体，设置它的属性材质，并把它放入场景里
-      // this.initMesh();
+      this.initMesh();
+
+
+      // this.initCamera(); //渲染相机
+      // this.loadGLTF(); //渲染模型
+      // this.initBackground() // 设置背景
+      this.initRender(); //渲染器
       //创建光源
       this.initLight(); //加载灯光
       
@@ -56,11 +55,12 @@ export default {
       this.controls = new OrbitControls(this.camera, this.renderer.domElement); //创建控件对象
 
       //第三步：渲染场景
-      this.animate(); //加载渲染场景
+      this.animateBase() // 加载基础3d模型场景
+      // this.animate(); //加载渲染场景
+
 
     },
     loadGLTF() {
-      // let that = this
       var loader = new GLTFLoader();
       console.log(loader);
 
@@ -70,7 +70,6 @@ export default {
           var model = gltf.scene;
           this.modelContainer = new THREE.Object3D();
           this.modelContainer.add(model);
-          // this.modelContainer.position.set(0, 10, 0);
           this.scene.add(this.modelContainer);
         },
         undefined,
@@ -79,15 +78,18 @@ export default {
         }
       );
     },
-    animate() {
+    animateBase() {
       // this.mesh.rotation.x += 0.01
-      // this.mesh.rotation.y += 0.01
+      this.mesh.rotation.y += 0.01
+      requestAnimationFrame(this.animateBase);
+      this.renderer.render(this.scene, this.camera);
+    },
+    animate() {
       requestAnimationFrame(this.animate);
       if (this.modelContainer) {
         this.modelContainer.rotation.y += 0.01; // 控制旋转速度和方向
       }
       this.renderer.render(this.scene, this.camera);
-      this.controls.update();
     },
     initCamera() {
       this.camera = new THREE.PerspectiveCamera(
@@ -96,8 +98,17 @@ export default {
         1,
         1000
       );
-      // this.camera.position.set(350, 350, 350);
       this.camera.position.set(10, 10, 10);
+      this.camera.lookAt(0, 0, 0); //指向this.mesh对应的位置
+    },
+    initCameraBase() {
+      this.camera = new THREE.PerspectiveCamera(
+        75,
+        window.innerWidth / window.innerHeight,
+        1,
+        1000
+      );
+      this.camera.position.set(350, 350, 350);
       this.camera.lookAt(0, 0, 0); //指向this.mesh对应的位置
     },
     initMesh() {
@@ -115,16 +126,6 @@ export default {
 
     },
     initBackground () {
-      // let that = this
-      // // 创建一个纹理加载器
-      // const textureLoader = new THREE.TextureLoader();
-
-      // // 加载图像
-      // textureLoader.load('/static/gzyz.jpg', function(texture) {
-      //   // 将图像应用到场景的背景中
-      //   that.scene.background = texture;
-      // });
-
 
        // 创建一个立方体纹理加载器
       const cubeTextureLoader = new THREE.CubeTextureLoader();
@@ -161,7 +162,7 @@ export default {
       this.renderer = new THREE.WebGLRenderer();
 
       //设置渲染器背景颜色
-      this.renderer.setClearColor(0x888888);
+      // this.renderer.setClearColor(0x888888);
       //设置渲染器像素分辨值
       this.renderer.setPixelRatio(window.devicePixelRatio);
       this.renderer.setSize(window.innerWidth, window.innerHeight);
