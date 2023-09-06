@@ -7,6 +7,7 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+
 export default {
   data() {
     return {
@@ -39,25 +40,22 @@ export default {
     init() {
       //第一步：创建场景、相机、渲染器
       this.scene = new THREE.Scene();
-      this.initCameraBase() //渲染基础3d模型相机
+      this.initCamera(); //渲染相机
       //第二步：创建要显示的立方体，设置它的属性材质，并把它放入场景里
       this.initMesh();
 
-
-      // this.initCamera(); //渲染相机
       // this.loadGLTF(); //渲染模型
       // this.initBackground() // 设置背景
       this.initRender(); //渲染器
       //创建光源
       this.initLight(); //加载灯光
-      
+
       //鼠标操作三维场景
       this.controls = new OrbitControls(this.camera, this.renderer.domElement); //创建控件对象
 
       //第三步：渲染场景
       this.animateBase() // 加载基础3d模型场景
       // this.animate(); //加载渲染场景
-
 
     },
     loadGLTF() {
@@ -79,8 +77,10 @@ export default {
       );
     },
     animateBase() {
+      // requestAnimationFrame的作用主要是进行动画的定时操作，它提供了一种高效的方式来更新和绘制动画，与浏览器的刷新频率同步，以优化动画效果并节省系统资源。
       // this.mesh.rotation.x += 0.01
       this.mesh.rotation.y += 0.01
+      // this.mesh.rotation.z += 0.01
       requestAnimationFrame(this.animateBase);
       this.renderer.render(this.scene, this.camera);
     },
@@ -92,6 +92,10 @@ export default {
       this.renderer.render(this.scene, this.camera);
     },
     initCamera() {
+      // fov：表示相机的视野范围，即相机能看到的角度。其数值以度数为单位，通常设置在45-75度之间。
+      // aspect：表示相机的宽高比，通常与渲染的画布的宽高比相同，如window.innerWidth / window.innerHeight。
+      // near：表示相机拍摄场景的最近距离。小于此距离的物体将不会在渲染结果中显示。
+      // far：表示相机拍摄场景的最远距离。大于此距离的物体也不会在渲染结果中显示。
       this.camera = new THREE.PerspectiveCamera(
         75,
         window.innerWidth / window.innerHeight,
@@ -101,18 +105,8 @@ export default {
       this.camera.position.set(10, 10, 10);
       this.camera.lookAt(0, 0, 0); //指向this.mesh对应的位置
     },
-    initCameraBase() {
-      this.camera = new THREE.PerspectiveCamera(
-        75,
-        window.innerWidth / window.innerHeight,
-        1,
-        1000
-      );
-      this.camera.position.set(350, 350, 350);
-      this.camera.lookAt(0, 0, 0); //指向this.mesh对应的位置
-    },
     initMesh() {
-      this.geometry = new THREE.BoxGeometry(100, 100, 100); //立方体
+      this.geometry = new THREE.BoxGeometry(3, 3, 3); //立方体
       
       this.material = new THREE.MeshBasicMaterial({
         color: 0x888888
@@ -142,7 +136,7 @@ export default {
       this.scene.background = texture
     },
     initLight() {
-      //点光源：两个参数分别表示光源颜色和光照强度
+      // 点光源：两个参数分别表示光源颜色和光照强度
       // 参数1：0xffffff是纯白光,表示光源颜色
       // 参数2：1.0,表示光照强度，可以根据需要调整
       const pointLight = new THREE.DirectionalLight(0xffffff, 1.0);
